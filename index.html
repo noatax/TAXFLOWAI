@@ -1,0 +1,1762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TaxFlow AI — CPA Workflow Suite</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green-900: #0a3d1f;
+    --green-800: #0f5c2e;
+    --green-700: #1a7a3e;
+    --green-600: #22a050;
+    --green-100: #d4f0e0;
+    --green-50:  #eaf7f0;
+    --gray-900: #111827;
+    --gray-800: #1f2937;
+    --gray-700: #374151;
+    --gray-600: #4b5563;
+    --gray-400: #9ca3af;
+    --gray-200: #e5e7eb;
+    --gray-100: #f3f4f6;
+    --gray-50:  #f9fafb;
+    --white:    #ffffff;
+    --red-600:  #dc2626;
+    --red-50:   #fef2f2;
+    --amber-600:#d97706;
+    --amber-50: #fffbeb;
+    --blue-600: #2563eb;
+    --blue-50:  #eff6ff;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.08);
+    --shadow:    0 2px 8px rgba(0,0,0,.10);
+    --radius:    8px;
+    --radius-lg: 12px;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--gray-100);
+    color: var(--gray-900);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* ── TOPBAR ── */
+  .topbar {
+    background: var(--white);
+    border-bottom: 1px solid var(--gray-200);
+    padding: 0 20px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow-sm);
+  }
+  .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .logo-mark {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: var(--green-800); display: flex; align-items: center;
+    justify-content: center; font-size: 17px; flex-shrink: 0;
+  }
+  .logo-text { font-size: 16px; font-weight: 700; color: var(--green-800); }
+  .logo-badge {
+    font-size: 10px; font-weight: 600; color: var(--green-700);
+    background: var(--green-50); border: 1px solid var(--green-100);
+    padding: 2px 7px; border-radius: 20px;
+  }
+  .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+  .client-select {
+    font-size: 13px; padding: 5px 10px; border: 1px solid var(--gray-200);
+    border-radius: 20px; background: var(--gray-50); color: var(--gray-700);
+    cursor: pointer; max-width: 180px; outline: none;
+  }
+  .client-select:focus { border-color: var(--green-600); }
+  .icon-btn {
+    width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--gray-200);
+    background: var(--gray-50); cursor: pointer; display: flex; align-items: center;
+    justify-content: center; font-size: 16px; transition: all .15s;
+  }
+  .icon-btn:hover { background: var(--gray-100); border-color: var(--gray-300); }
+
+  /* ── LAYOUT ── */
+  .main { display: flex; min-height: calc(100vh - 56px); }
+  .sidebar {
+    width: 220px; flex-shrink: 0; background: var(--white);
+    border-right: 1px solid var(--gray-200); padding: 16px 0;
+    position: sticky; top: 56px; height: calc(100vh - 56px); overflow-y: auto;
+  }
+  .sidebar-section { padding: 0 12px; margin-bottom: 8px; }
+  .sidebar-label {
+    font-size: 10px; font-weight: 600; color: var(--gray-400);
+    text-transform: uppercase; letter-spacing: .06em;
+    padding: 6px 8px 4px; display: block;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 8px; padding: 7px 10px;
+    border-radius: 6px; cursor: pointer; font-size: 13px; color: var(--gray-700);
+    transition: all .12s; user-select: none; border: none; background: none;
+    width: 100%; text-align: left;
+  }
+  .nav-item:hover { background: var(--gray-100); color: var(--gray-900); }
+  .nav-item.active { background: var(--green-50); color: var(--green-800); font-weight: 600; }
+  .nav-item .nav-icon { font-size: 15px; width: 20px; text-align: center; flex-shrink: 0; }
+  .nav-badge {
+    margin-left: auto; font-size: 10px; background: var(--gray-200);
+    color: var(--gray-600); padding: 1px 6px; border-radius: 10px; font-weight: 500;
+  }
+
+  .content { flex: 1; padding: 24px; max-width: 900px; }
+
+  /* ── SCREENS ── */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ── DASHBOARD ── */
+  .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
+  .stat-card {
+    background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg);
+    padding: 16px; text-align: center; box-shadow: var(--shadow-sm);
+  }
+  .stat-value { font-size: 28px; font-weight: 700; color: var(--green-800); }
+  .stat-label { font-size: 12px; color: var(--gray-500); margin-top: 2px; }
+
+  .section-header { margin-bottom: 16px; }
+  .section-title { font-size: 18px; font-weight: 700; color: var(--gray-900); margin-bottom: 4px; }
+  .section-sub { font-size: 13px; color: var(--gray-500); }
+
+  .wf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .wf-card {
+    background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius);
+    padding: 14px; cursor: pointer; transition: all .15s; box-shadow: var(--shadow-sm);
+  }
+  .wf-card:hover { border-color: var(--green-600); box-shadow: 0 2px 12px rgba(15,92,46,.12); transform: translateY(-1px); }
+  .wf-num { font-size: 10px; font-weight: 700; color: var(--gray-400); margin-bottom: 5px; letter-spacing: .04em; }
+  .wf-title { font-size: 13px; font-weight: 600; color: var(--gray-900); margin-bottom: 4px; line-height: 1.3; }
+  .wf-save { font-size: 11px; color: var(--green-700); font-weight: 500; }
+  .wf-tag {
+    display: inline-block; font-size: 10px; font-weight: 600;
+    padding: 2px 7px; border-radius: 10px; margin-top: 6px;
+  }
+  .tag-green { background: var(--green-50); color: var(--green-700); border: 1px solid var(--green-100); }
+  .tag-blue  { background: var(--blue-50);  color: var(--blue-600);  border: 1px solid #bfdbfe; }
+  .tag-amber { background: var(--amber-50); color: var(--amber-600); border: 1px solid #fde68a; }
+  .tag-red   { background: var(--red-50);   color: var(--red-600);   border: 1px solid #fecaca; }
+
+  /* ── WORKFLOW RUNNER ── */
+  .wf-header-bar {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 20px;
+    padding-bottom: 16px; border-bottom: 1px solid var(--gray-200);
+  }
+  .back-btn {
+    padding: 6px 12px; border: 1px solid var(--gray-200); border-radius: 6px;
+    background: var(--white); font-size: 13px; color: var(--gray-600); cursor: pointer;
+    transition: all .12s;
+  }
+  .back-btn:hover { background: var(--gray-100); }
+  .wf-header-title { font-size: 18px; font-weight: 700; color: var(--gray-900); flex: 1; }
+
+  .form-card {
+    background: var(--white); border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg); padding: 20px; margin-bottom: 16px;
+    box-shadow: var(--shadow-sm);
+  }
+  .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form-group { margin-bottom: 14px; }
+  .form-group:last-child { margin-bottom: 0; }
+  .form-label {
+    display: block; font-size: 12px; font-weight: 600; color: var(--gray-700);
+    margin-bottom: 5px;
+  }
+  .form-input, .form-select, .form-textarea {
+    width: 100%; padding: 8px 11px; border: 1px solid var(--gray-200);
+    border-radius: 6px; font-size: 13px; color: var(--gray-900);
+    background: var(--gray-50); outline: none; transition: border-color .15s;
+    font-family: inherit;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color: var(--green-600); background: var(--white);
+    box-shadow: 0 0 0 3px rgba(22,160,80,.1);
+  }
+  .form-textarea { min-height: 80px; resize: vertical; line-height: 1.5; }
+
+  .run-btn {
+    width: 100%; padding: 12px; border-radius: 8px; border: none;
+    background: var(--green-800); color: var(--white); font-size: 14px;
+    font-weight: 700; cursor: pointer; transition: all .15s; letter-spacing: .01em;
+  }
+  .run-btn:hover { background: var(--green-700); }
+  .run-btn:disabled { opacity: .55; cursor: not-allowed; }
+  .run-btn.loading { background: var(--green-700); }
+
+  /* ── OUTPUT ── */
+  .output-card {
+    background: var(--white); border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg); padding: 20px; margin-top: 16px;
+    box-shadow: var(--shadow-sm);
+  }
+  .output-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .output-title { font-size: 14px; font-weight: 700; color: var(--gray-900); }
+  .output-actions { display: flex; gap: 8px; }
+  .action-btn {
+    padding: 5px 12px; border: 1px solid var(--gray-200); border-radius: 6px;
+    background: var(--gray-50); font-size: 12px; font-weight: 500;
+    color: var(--gray-700); cursor: pointer; transition: all .12s;
+  }
+  .action-btn:hover { background: var(--gray-100); }
+  .action-btn.saved { background: var(--green-50); color: var(--green-700); border-color: var(--green-100); }
+  .output-body {
+    background: var(--gray-50); border: 1px solid var(--gray-200);
+    border-radius: 8px; padding: 16px; font-size: 13px; line-height: 1.75;
+    color: var(--gray-800); white-space: pre-wrap; max-height: 520px;
+    overflow-y: auto; word-wrap: break-word;
+  }
+  .output-body strong { font-weight: 700; color: var(--gray-900); }
+
+  /* Loading */
+  .loading-bar {
+    height: 3px; background: var(--green-100); border-radius: 2px;
+    margin-bottom: 12px; overflow: hidden;
+  }
+  .loading-bar-inner {
+    height: 100%; background: var(--green-600); border-radius: 2px;
+    animation: loading-anim 1.4s ease-in-out infinite;
+    width: 40%;
+  }
+  @keyframes loading-anim {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(350%); }
+  }
+  .loading-dots { display: flex; gap: 5px; align-items: center; padding: 20px; justify-content: center; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green-600); animation: dot-pulse 1.2s ease-in-out infinite; }
+  .dot:nth-child(2) { animation-delay: .2s; }
+  .dot:nth-child(3) { animation-delay: .4s; }
+  @keyframes dot-pulse { 0%,80%,100%{opacity:.2;transform:scale(.8)} 40%{opacity:1;transform:scale(1)} }
+
+  /* ── CLIENTS ── */
+  .page-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .add-btn {
+    padding: 8px 16px; border-radius: 8px; border: none;
+    background: var(--green-800); color: var(--white); font-size: 13px;
+    font-weight: 600; cursor: pointer; transition: all .12s;
+  }
+  .add-btn:hover { background: var(--green-700); }
+
+  .client-list { display: flex; flex-direction: column; gap: 8px; }
+  .client-card {
+    background: var(--white); border: 1px solid var(--gray-200);
+    border-radius: var(--radius); padding: 14px 16px;
+    display: flex; align-items: center; gap: 12px;
+    box-shadow: var(--shadow-sm);
+  }
+  .client-avatar {
+    width: 38px; height: 38px; border-radius: 50%; background: var(--green-100);
+    color: var(--green-800); display: flex; align-items: center; justify-content:center;
+    font-size: 13px; font-weight: 700; flex-shrink: 0;
+  }
+  .client-name { font-size: 14px; font-weight: 600; color: var(--gray-900); }
+  .client-meta { font-size: 12px; color: var(--gray-500); margin-top: 2px; }
+  .client-actions { margin-left: auto; display: flex; gap: 6px; }
+  .ghost-btn {
+    padding: 4px 10px; border: 1px solid var(--gray-200); border-radius: 5px;
+    background: var(--gray-50); font-size: 12px; color: var(--gray-600);
+    cursor: pointer; transition: all .12s;
+  }
+  .ghost-btn:hover { background: var(--gray-100); }
+  .ghost-btn.danger:hover { background: var(--red-50); color: var(--red-600); border-color: #fecaca; }
+
+  .empty-state {
+    text-align: center; padding: 60px 20px;
+    background: var(--white); border: 1px dashed var(--gray-200);
+    border-radius: var(--radius-lg);
+  }
+  .empty-icon { font-size: 40px; margin-bottom: 12px; }
+  .empty-title { font-size: 16px; font-weight: 600; color: var(--gray-700); margin-bottom: 6px; }
+  .empty-sub { font-size: 13px; color: var(--gray-400); margin-bottom: 20px; }
+
+  /* ── HISTORY ── */
+  .history-list { display: flex; flex-direction: column; gap: 8px; }
+  .history-card {
+    background: var(--white); border: 1px solid var(--gray-200);
+    border-radius: var(--radius); padding: 14px 16px; cursor: pointer;
+    transition: all .12s; box-shadow: var(--shadow-sm);
+  }
+  .history-card:hover { border-color: var(--green-400); box-shadow: var(--shadow); }
+  .history-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+  .history-wf { font-size: 13px; font-weight: 600; color: var(--gray-900); }
+  .history-date { font-size: 11px; color: var(--gray-400); }
+  .history-client { font-size: 12px; color: var(--green-700); font-weight: 500; margin-bottom: 5px; }
+  .history-preview {
+    font-size: 12px; color: var(--gray-500); overflow: hidden;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    line-height: 1.5;
+  }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.45);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 500; padding: 20px;
+  }
+  .modal-overlay.hidden { display: none; }
+  .modal {
+    background: var(--white); border-radius: var(--radius-lg);
+    padding: 24px; width: 100%; max-width: 420px;
+    max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,.2);
+  }
+  .modal-title { font-size: 17px; font-weight: 700; color: var(--gray-900); margin-bottom: 18px; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+  .modal-cancel {
+    flex: 1; padding: 10px; border: 1px solid var(--gray-200); border-radius: 7px;
+    background: var(--gray-50); font-size: 14px; color: var(--gray-700); cursor: pointer;
+  }
+  .modal-confirm {
+    flex: 1; padding: 10px; border: none; border-radius: 7px;
+    background: var(--green-800); color: var(--white); font-size: 14px;
+    font-weight: 600; cursor: pointer; transition: all .12s;
+  }
+  .modal-confirm:hover { background: var(--green-700); }
+
+  /* ── SETTINGS ── */
+  .settings-card {
+    background: var(--white); border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg); padding: 20px; margin-bottom: 16px;
+    box-shadow: var(--shadow-sm);
+  }
+  .settings-title { font-size: 15px; font-weight: 700; color: var(--gray-900); margin-bottom: 14px; }
+  .api-key-row { display: flex; gap: 10px; }
+  .api-key-input {
+    flex: 1; padding: 9px 12px; border: 1px solid var(--gray-200); border-radius: 7px;
+    font-size: 13px; font-family: monospace; background: var(--gray-50);
+    color: var(--gray-900); outline: none;
+  }
+  .api-key-input:focus { border-color: var(--green-600); }
+  .save-key-btn {
+    padding: 9px 16px; border: none; border-radius: 7px; background: var(--green-800);
+    color: var(--white); font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap;
+  }
+  .save-key-btn:hover { background: var(--green-700); }
+  .key-status {
+    margin-top: 8px; font-size: 12px; padding: 6px 10px; border-radius: 5px;
+  }
+  .key-status.ok { background: var(--green-50); color: var(--green-700); }
+  .key-status.missing { background: var(--amber-50); color: var(--amber-600); }
+
+  /* ── API KEY GATE ── */
+  .api-gate {
+    position: fixed; inset: 0; background: var(--gray-100);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1000; padding: 20px;
+  }
+  .api-gate.hidden { display: none; }
+  .api-gate-card {
+    background: var(--white); border-radius: var(--radius-lg);
+    padding: 32px; max-width: 440px; width: 100%;
+    box-shadow: 0 20px 40px rgba(0,0,0,.12); text-align: center;
+  }
+  .gate-logo {
+    width: 56px; height: 56px; border-radius: 14px; background: var(--green-800);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; margin: 0 auto 16px;
+  }
+  .gate-title { font-size: 22px; font-weight: 800; color: var(--gray-900); margin-bottom: 8px; }
+  .gate-sub { font-size: 14px; color: var(--gray-500); margin-bottom: 24px; line-height: 1.6; }
+  .gate-input {
+    width: 100%; padding: 11px 14px; border: 2px solid var(--gray-200);
+    border-radius: 8px; font-size: 13px; font-family: monospace;
+    margin-bottom: 12px; outline: none; background: var(--gray-50);
+  }
+  .gate-input:focus { border-color: var(--green-600); background: var(--white); }
+  .gate-btn {
+    width: 100%; padding: 12px; border: none; border-radius: 8px;
+    background: var(--green-800); color: var(--white); font-size: 15px;
+    font-weight: 700; cursor: pointer; transition: all .15s;
+  }
+  .gate-btn:hover { background: var(--green-700); }
+  .gate-hint {
+    font-size: 11px; color: var(--gray-400); margin-top: 14px; line-height: 1.6;
+  }
+  .gate-link { color: var(--green-700); text-decoration: none; font-weight: 500; }
+  .gate-error { font-size: 12px; color: var(--red-600); background: var(--red-50); padding: 8px 12px; border-radius: 5px; margin-bottom: 10px; }
+
+  /* ── BREADCRUMB ── */
+  .breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--gray-400); margin-bottom: 20px; }
+  .breadcrumb-current { color: var(--gray-700); font-weight: 500; }
+
+  /* ── RESPONSIVE ── */
+  
+    .wf-grid { grid-template-columns: 1fr 1fr; }
+    .stats-row { grid-template-columns: 1fr 1fr 1fr; }
+    .form-grid-2 { grid-template-columns: 1fr; }
+  }
+  
+  }
+
+  /* Detail view */
+  .detail-view {
+    background: var(--white); border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg); padding: 20px; box-shadow: var(--shadow-sm);
+  }
+  .detail-meta { font-size: 12px; color: var(--gray-400); margin-bottom: 14px; }
+  .info-banner {
+    background: var(--green-50); border: 1px solid var(--green-100);
+    border-radius: 8px; padding: 10px 14px; margin-bottom: 20px;
+    font-size: 13px; color: var(--green-800); line-height: 1.5;
+  }
+  .divider { height: 1px; background: var(--gray-200); margin: 20px 0; }
+
+  /* ── MOBILE BOTTOM NAV ── */
+  .bottom-nav {
+    display: none;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--white);
+    border-top: 1.5px solid var(--gray-200);
+    z-index: 300;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    box-shadow: 0 -2px 12px rgba(0,0,0,.08);
+  }
+  .bottom-nav-inner {
+    display: flex;
+    align-items: stretch;
+  }
+  .bn-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 4px 10px;
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-family: inherit;
+    color: var(--gray-400);
+    transition: color .15s;
+    gap: 3px;
+    -webkit-tap-highlight-color: transparent;
+    min-height: 56px;
+  }
+  .bn-item.active { color: var(--green-800); }
+  .bn-item .bn-icon { font-size: 22px; line-height: 1; }
+  .bn-item .bn-label { font-size: 10px; font-weight: 600; line-height: 1; letter-spacing: .01em; }
+  @media (max-width: 900px) {
+    .sidebar { display: none !important; }
+    .bottom-nav { display: block; }
+    .content { padding: 16px 16px 88px !important; }
+    .wf-grid { grid-template-columns: 1fr 1fr !important; }
+    .stats-row { grid-template-columns: repeat(3, 1fr) !important; }
+    .form-grid-2 { grid-template-columns: 1fr !important; }
+  }
+  @media (max-width: 480px) {
+    .wf-grid { grid-template-columns: 1fr !important; }
+    .stats-row { grid-template-columns: 1fr !important; }
+  }
+
+</style>
+</head>
+<body>
+
+<!-- API Key Gate -->
+<div class="api-gate" id="apiGate">
+  <div class="api-gate-card">
+    <div class="gate-logo">🧾</div>
+    <div class="gate-title">TaxFlow AI</div>
+    <div class="gate-sub" id="gateSub">Enter your access code to get started.</div>
+    <div class="gate-error" id="gateError" style="display:none"></div>
+    <input class="gate-input" id="gateKeyInput" type="password" placeholder="Access code..." autocomplete="off"/>
+    <button class="gate-btn" onclick="saveApiKey()">Enter TaxFlow AI →</button>
+    <div class="gate-hint">
+      Have your own Anthropic API key?
+      <a class="gate-link" href="#" onclick="showKeyMode();return false;">Click here →</a>
+    </div>
+  </div>
+</div>
+
+<!-- Topbar -->
+<div class="topbar" id="appTopbar" style="display:none">
+  <a class="logo" href="#" onclick="navigate('dashboard')">
+    <div class="logo-mark">🧾</div>
+    <span class="logo-text">TaxFlow AI</span>
+    <span class="logo-badge">CPA Suite</span>
+  </a>
+  <div class="topbar-right">
+    <select class="client-select" id="clientSelector" onchange="selectClient(this.value)">
+      <option value="">— Select Client —</option>
+    </select>
+    <button class="icon-btn" onclick="navigate('settings')" title="Settings">⚙️</button>
+  </div>
+</div>
+
+<!-- App Shell -->
+<div class="main" id="appShell" style="display:none">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <span class="sidebar-label">Workflows</span>
+      <button class="nav-item active" id="nav-dashboard" onclick="navigate('dashboard')">
+        <span class="nav-icon">⚡</span> All Workflows
+      </button>
+    </div>
+    <div class="sidebar-section">
+      <span class="sidebar-label">Manage</span>
+      <button class="nav-item" id="nav-clients" onclick="navigate('clients')">
+        <span class="nav-icon">👥</span> Clients
+        <span class="nav-badge" id="clientBadge">0</span>
+      </button>
+      <button class="nav-item" id="nav-history" onclick="navigate('history')">
+        <span class="nav-icon">📋</span> History
+        <span class="nav-badge" id="historyBadge">0</span>
+      </button>
+    </div>
+    <div class="sidebar-section">
+      <span class="sidebar-label">Account</span>
+      <button class="nav-item" id="nav-settings" onclick="navigate('settings')">
+        <span class="nav-icon">⚙️</span> Settings
+      </button>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="screen active" id="screen-dashboard">
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-value" id="statOutputs">0</div>
+          <div class="stat-label">Outputs generated</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statHours">0</div>
+          <div class="stat-label">Hours saved (est.)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statValue">$0</div>
+          <div class="stat-label">Billable value recovered</div>
+        </div>
+      </div>
+      <div class="section-header">
+        <div class="section-title">12 CPA Workflows</div>
+        <div class="section-sub">Click any workflow — it pre-fills from your selected client</div>
+      </div>
+      <div class="wf-grid" id="wfGrid"></div>
+    </div>
+
+    <!-- WORKFLOW RUNNER -->
+    <div class="screen" id="screen-workflow">
+      <div class="wf-header-bar">
+        <button class="back-btn" onclick="navigate('dashboard')">← Back</button>
+        <div class="wf-header-title" id="wfRunTitle">Workflow</div>
+        <span id="wfRunTag"></span>
+      </div>
+      <div class="form-card" id="wfForm"></div>
+      <button class="run-btn" id="runBtn" onclick="runWorkflow()">⚡ Generate Output</button>
+      <div id="outputArea"></div>
+    </div>
+
+    <!-- CLIENTS -->
+    <div class="screen" id="screen-clients">
+      <div class="page-header">
+        <div>
+          <div class="section-title">Clients</div>
+          <div class="section-sub">Add clients to pre-fill workflow forms automatically</div>
+        </div>
+        <button class="add-btn" onclick="openClientModal()">+ Add Client</button>
+      </div>
+      <div id="clientListContainer"></div>
+    </div>
+
+    <!-- HISTORY -->
+    <div class="screen" id="screen-history">
+      <div class="page-header">
+        <div>
+          <div class="section-title">Output History</div>
+          <div class="section-sub">All saved AI outputs</div>
+        </div>
+      </div>
+      <div id="historyContainer"></div>
+    </div>
+
+    <!-- HISTORY DETAIL -->
+    <div class="screen" id="screen-detail">
+      <div class="wf-header-bar">
+        <button class="back-btn" onclick="navigate('history')">← History</button>
+        <div class="wf-header-title" id="detailTitle">Output</div>
+      </div>
+      <div class="detail-view">
+        <div class="detail-meta" id="detailMeta"></div>
+        <div class="output-actions" style="margin-bottom:12px">
+          <button class="action-btn" onclick="copyDetail()">Copy Output</button>
+        </div>
+        <div class="output-body" id="detailBody"></div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="screen" id="screen-settings">
+      <div class="section-title" style="margin-bottom:20px">Settings</div>
+      <div class="settings-card">
+        <div class="settings-title">🔑 Anthropic API Key</div>
+        <div class="sm" style="color:#6b7280;margin-bottom:12px;font-size:13px">
+          Your key is stored in your browser's localStorage — never sent to any server other than Anthropic's API directly.
+        </div>
+        <div class="api-key-row">
+          <input class="api-key-input" id="settingsKeyInput" type="password" placeholder="sk-ant-api03-..." />
+          <button class="save-key-btn" onclick="updateApiKey()">Save Key</button>
+        </div>
+        <div class="key-status" id="keyStatus"></div>
+      </div>
+      <div class="settings-card">
+        <div class="settings-title">📊 Usage Stats</div>
+        <div id="usageStats" style="font-size:13px;color:#374151;line-height:2"></div>
+      </div>
+      <div class="settings-card">
+        <div class="settings-title">🗑️ Data Management</div>
+        <div style="font-size:13px;color:#6b7280;margin-bottom:12px">Clear all stored data from your browser. This cannot be undone.</div>
+        <button class="ghost-btn danger" onclick="clearAllData()" style="font-size:13px;padding:8px 16px">Clear All Data</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Client Modal -->
+<div class="modal-overlay hidden" id="clientModal">
+  <div class="modal">
+    <div class="modal-title" id="clientModalTitle">Add New Client</div>
+    <div class="form-group">
+      <label class="form-label">Client / Business Name *</label>
+      <input class="form-input" id="cm-name" placeholder="e.g. John Smith or Apex Solutions LLC" />
+    </div>
+    <div class="form-grid-2">
+      <div class="form-group">
+        <label class="form-label">Entity Type</label>
+        <select class="form-select" id="cm-entity">
+          <option value="">Select...</option>
+          <option>Individual (1040)</option>
+          <option>S-Corporation</option>
+          <option>C-Corporation</option>
+          <option>Partnership / LLC</option>
+          <option>Non-profit</option>
+          <option>Trust / Estate</option>
+          <option>Sole Proprietor</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">State</label>
+        <input class="form-input" id="cm-state" placeholder="e.g. Texas" />
+      </div>
+    </div>
+    <div class="form-grid-2">
+      <div class="form-group">
+        <label class="form-label">Industry</label>
+        <input class="form-input" id="cm-industry" placeholder="e.g. Healthcare, Real Estate" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Annual Revenue (est.)</label>
+        <input class="form-input" id="cm-revenue" placeholder="e.g. $480K, $2.1M" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes</label>
+      <textarea class="form-textarea" id="cm-notes" placeholder="Key facts, ongoing issues, goals..." style="min-height:64px"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeClientModal()">Cancel</button>
+      <button class="modal-confirm" onclick="saveClient()">Save Client</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// CONFIGURATION — fill in before sharing with your team
+// ═══════════════════════════════════════════════════════
+const APP_PASSWORD = 'CHANGE_ME';   // e.g. 'taxflow2025'
+const APP_API_KEY  = 'CHANGE_ME';   // your sk-ant-... key
+
+function saveApiKey() {
+  const input = document.getElementById('gateKeyInput').value.trim();
+  const err   = document.getElementById('gateError');
+  err.style.display = 'none';
+
+  // Password mode — correct password unlocks using owner API key
+  if (APP_PASSWORD !== 'CHANGE_ME' && APP_API_KEY !== 'CHANGE_ME' && input === APP_PASSWORD) {
+    state.apiKey = APP_API_KEY;
+    LS.set('tf_apikey', APP_API_KEY);
+    document.getElementById('apiGate').classList.add('hidden');
+    showApp();
+    return;
+  }
+
+  // Direct API key mode — user enters their own sk-ant- key
+  if (input.startsWith('sk-ant-')) {
+    state.apiKey = input;
+    LS.set('tf_apikey', input);
+    document.getElementById('apiGate').classList.add('hidden');
+    showApp();
+    return;
+  }
+
+  // Wrong password or unconfigured
+  err.style.display = 'block';
+  if (APP_PASSWORD === 'CHANGE_ME') {
+    err.textContent = 'App not configured yet — owner needs to set APP_PASSWORD and APP_API_KEY in the code.';
+  } else {
+    err.textContent = 'Incorrect access code. Please try again.';
+  }
+}
+
+function showKeyMode() {
+  document.getElementById('gateKeyInput').type = 'text';
+  document.getElementById('gateKeyInput').placeholder = 'sk-ant-api03-...';
+  document.getElementById('gateSub').textContent = 'Enter your own Anthropic API key, or ask your admin for the access code.';
+  document.getElementById('gateKeyInput').value = '';
+  document.getElementById('gateKeyInput').focus();
+}
+
+// ═══════════════════════════════════════════════
+// DATA LAYER
+// ═══════════════════════════════════════════════
+const LS = {
+  get: k => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } },
+  set: (k, v) => localStorage.setItem(k, JSON.stringify(v)),
+  del: k => localStorage.removeItem(k)
+};
+
+let state = {
+  apiKey: LS.get('tf_apikey') || '',
+  clients: LS.get('tf_clients') || [],
+  outputs: LS.get('tf_outputs') || [],
+  selectedClient: null,
+  currentWF: null,
+  currentScreen: 'dashboard',
+  editingClientId: null,
+  viewingOutputId: null
+};
+
+function save() {
+  LS.set('tf_clients', state.clients);
+  LS.set('tf_outputs', state.outputs.slice(0, 60));
+}
+
+// ═══════════════════════════════════════════════
+// WORKFLOW DEFINITIONS — all 12
+// ═══════════════════════════════════════════════
+const WORKFLOWS = [
+  {
+    id: 'tax-letter', num: '01', title: 'Tax Planning Letter', tag: 'High impact', tagClass: 'tag-green',
+    saves: '3 hrs → 25 min', valueEst: 750,
+    fields: [
+      { id: 'clientName',   label: 'Client name',           type: 'text',   ph: 'e.g. John & Jane Smith' },
+      { id: 'entityType',   label: 'Entity type',           type: 'select', opts: ['W-2 Employee','S-Corp Owner','LLC Owner','C-Corp Owner','1099 Contractor','Partnership'] },
+      { id: 'agi',          label: 'Estimated AGI ($)',      type: 'text',   ph: 'e.g. 285,000' },
+      { id: 'filingStatus', label: 'Filing status',         type: 'select', opts: ['Married Filing Jointly','Single','Head of Household','Married Filing Separately'] },
+      { id: 'state',        label: 'State',                 type: 'text',   ph: 'e.g. Texas' },
+      { id: 'keyFacts',     label: 'Key facts (3–5 items)', type: 'textarea', ph: 'e.g. Owns rental property, sold stock with $40K gain, two kids in college, considering SEP-IRA, recent business sale...' }
+    ],
+    prompt: f => `You are a senior CPA with 20+ years of tax planning expertise.
+
+Write a personalized year-end tax planning letter (450–550 words) for this client:
+- Name: ${f.clientName || '[Client]'}
+- Entity: ${f.entityType || 'Individual'}
+- Estimated AGI: $${f.agi || '[AGI]'}
+- Filing status: ${f.filingStatus || 'MFJ'}
+- State: ${f.state || '[State]'}
+- Key facts: ${f.keyFacts || '[Facts]'}
+
+Structure the letter with these exact sections:
+**[CLIENT NAME] — Your 2025 Year-End Tax Planning Summary**
+
+Opening paragraph (2–3 sentences): Acknowledge their year, reference 1–2 specific facts, set up the opportunity.
+
+**Your Top 5 Tax-Saving Opportunities This Year:**
+For each: Strategy name → Plain-English explanation (1 sentence) → Estimated $ savings range → Deadline or action window
+
+**Your Action Checklist:**
+Specific action items with deadlines, ordered by dollar impact. Make each item concrete (e.g. "Max your SEP-IRA by December 31 — estimated savings: $12,400").
+
+Closing (2 sentences): Warm close + call to schedule a planning meeting before December 31.
+
+Tone: Professional but warm. This goes directly to the client — zero jargon. Use their name. Be specific with numbers.`
+  },
+  {
+    id: 'irs-notice', num: '02', title: 'IRS Notice Analyzer', tag: 'Time saver', tagClass: 'tag-blue',
+    saves: '2 hrs → 20 min', valueEst: 500,
+    fields: [
+      { id: 'noticeText',    label: 'Paste notice text',         type: 'textarea', ph: 'Paste the full IRS or state tax notice text here — include notice number, dates, amounts, and all text...' },
+      { id: 'taxpayerType',  label: 'Taxpayer type',            type: 'select', opts: ['Individual','S-Corp','C-Corp','Partnership','Non-profit','Trust'] },
+      { id: 'taxYear',       label: 'Tax year in question',     type: 'text',   ph: 'e.g. 2023' },
+      { id: 'filed',         label: 'Filed on time?',           type: 'select', opts: ['Yes','No','Extension filed','Unknown'] },
+      { id: 'background',    label: 'Additional context',       type: 'textarea', ph: 'Any known issues, prior communications, amended return, audit, payment arrangements...' }
+    ],
+    prompt: f => `You are an experienced CPA and IRS controversy specialist.
+
+NOTICE TEXT: ${f.noticeText || '[No notice pasted — please paste the notice text]'}
+TAXPAYER: ${f.taxpayerType || 'Individual'} | Year: ${f.taxYear || '[Year]'} | Filed on time: ${f.filed || 'Unknown'}
+BACKGROUND: ${f.background || 'None provided'}
+
+Produce three clearly labeled sections:
+
+**SECTION 1 — CLIENT EXPLANATION** (plain English, max 150 words, zero jargon)
+What this notice means, why they received it, consequences of ignoring it, what we are doing about it.
+
+**SECTION 2 — PRACTITIONER STRATEGY**
+- Notice type and IRC/code authority cited
+- Recommended action (agree and pay / dispute / request abatement / request more info)
+- Risk level: Low / Medium / High — with 1-sentence rationale
+- Response deadline (extract from notice)
+- Documents needed to respond
+- Penalty abatement eligibility: first-time abatement or reasonable cause?
+- Estimated resolution timeline
+
+**SECTION 3 — DRAFT RESPONSE LETTER**
+Complete, properly formatted response letter to the IRS. Include: taxpayer name, SSN/EIN, notice number, tax year, date, statement of position, supporting argument, requested resolution. Use [BRACKETS] for items needing client verification before sending. Cite relevant IRC sections where applicable.`
+  },
+  {
+    id: 'entity-opt', num: '03', title: 'Entity Optimizer', tag: 'Advisory', tagClass: 'tag-green',
+    saves: '4 hrs → 30 min', valueEst: 1200,
+    fields: [
+      { id: 'ownerName',     label: 'Business owner name',            type: 'text',   ph: 'e.g. Maria Garcia' },
+      { id: 'currentEntity', label: 'Current entity',                 type: 'select', opts: ['Sole Proprietorship','Single-Member LLC','Multi-Member LLC','S-Corporation','C-Corporation','Partnership'] },
+      { id: 'industry',      label: 'Industry',                       type: 'text',   ph: 'e.g. Medical practice, consulting, real estate' },
+      { id: 'netProfit',     label: 'Net profit before owner comp ($)',type: 'text',   ph: 'e.g. 175,000' },
+      { id: 'state',         label: 'State',                          type: 'text',   ph: 'e.g. California' },
+      { id: 'goals',         label: 'Primary goal',                   type: 'select', opts: ['Minimize current taxes','Plan for exit/sale','Attract investors','Liability protection','Smooth income over time'] }
+    ],
+    prompt: f => `You are a CPA and tax strategist specializing in small business entity optimization.
+
+BUSINESS: ${f.ownerName || '[Owner]'} | Current entity: ${f.currentEntity || 'LLC'} | Industry: ${f.industry || '[Industry]'}
+Net profit (before owner comp): $${f.netProfit || '[Amount]'} | State: ${f.state || '[State]'} | Goal: ${f.goals || 'Minimize taxes'}
+
+Produce a complete entity optimization analysis:
+
+**1. CURRENT TAX BURDEN**
+Calculate SE tax + federal income tax + state income tax. Show the math with actual numbers.
+
+**2. S-CORP ELECTION ANALYSIS**
+- Optimal reasonable W-2 salary (use IRS safe harbor logic + industry benchmarks)
+- FICA savings on distribution vs. salary portion — show the calculation
+- Total annual tax with S-Corp election
+- Net annual savings vs. current structure
+- Break-even analysis: at what net profit level does S-Corp make sense?
+- State-specific costs and considerations for ${f.state || 'this state'} (franchise fees, additional filings)
+
+**3. C-CORP CONSIDERATION**
+Brief note on when C-Corp makes sense (retained earnings strategy, QSB stock exclusion, exit planning). Is it relevant for this client?
+
+**4. COMPARISON TABLE**
+| Structure | Owner Salary | SE/Payroll Tax | Federal Income Tax | State Tax | Total Tax Burden | Net Take-Home |
+Show: Current structure vs. S-Corp vs. C-Corp
+
+**5. RECOMMENDATION**
+Clear, direct recommendation with rationale specific to this client's situation and goals.
+
+**6. IMPLEMENTATION ROADMAP**
+If changing: specific steps, timeline, costs, key deadlines (S-Corp election deadline: March 15 of current year or within 75 days of formation).`
+  },
+  {
+    id: 'onboarding', num: '04', title: 'Client Onboarding Package', tag: 'Efficiency', tagClass: 'tag-blue',
+    saves: '2 hrs → 15 min', valueEst: 400,
+    fields: [
+      { id: 'clientName', label: 'Client / Business name', type: 'text',   ph: 'e.g. Blue Sky Ventures LLC' },
+      { id: 'entityType', label: 'Entity type',            type: 'select', opts: ['Individual (1040)','S-Corporation','C-Corporation','Partnership / LLC','Non-profit','Trust'] },
+      { id: 'services',   label: 'Services engaged for',   type: 'text',   ph: 'e.g. Annual tax prep, monthly bookkeeping, advisory' },
+      { id: 'industry',   label: 'Industry',               type: 'text',   ph: 'e.g. Real estate, healthcare, technology' },
+      { id: 'fee',        label: 'Fee arrangement',         type: 'text',   ph: 'e.g. Flat fee $3,500/yr + $350/mo bookkeeping' },
+      { id: 'firmName',   label: 'Your firm name',          type: 'text',   ph: 'e.g. Smith & Associates CPA' }
+    ],
+    prompt: f => `You are a senior CPA and managing partner creating a new client onboarding package.
+
+CLIENT: ${f.clientName || '[Client]'} | Entity: ${f.entityType || 'Business'} | Industry: ${f.industry || '[Industry]'}
+Services: ${f.services || '[Services]'} | Fee: ${f.fee || '[Fee]'} | Firm: ${f.firmName || '[Firm]'}
+
+Produce four complete documents:
+
+**DOCUMENT 1 — ENGAGEMENT LETTER**
+Professional engagement letter including: scope of services (specific to ${f.entityType || 'this entity'}), fee structure, payment terms, client responsibilities, firm responsibilities, limitations of our work, confidentiality clause, file retention policy, dispute resolution, and signature blocks for both client and firm. Proper legal language.
+
+**DOCUMENT 2 — DOCUMENT REQUEST LIST**
+Itemized list of every document needed to complete ${f.services || 'the engaged services'}. Organized by category. For each item: what it is, why we need it in plain English, preferred format, and how to submit securely. Friendly and clear — not bureaucratic.
+
+**DOCUMENT 3 — CLIENT INTAKE QUESTIONNAIRE**
+15–18 targeted questions specific to ${f.entityType || 'this entity type'} and ${f.industry || 'this industry'}. Go beyond basics — uncover planning opportunities, life/business changes, recent transactions, goals, and pain points. Questions that open advisory conversations.
+
+**DOCUMENT 4 — WELCOME EMAIL**
+Warm, professional welcome email from ${f.firmName || 'our firm'} to ${f.clientName || 'the client'}. Cover: what to expect, next steps, how to reach us, what we need first and by when. Tone: trusted advisor welcoming a valued relationship — not a form letter.`
+  },
+  {
+    id: 'gl-classify', num: '05', title: 'GL Transaction Classifier', tag: 'Bookkeeping', tagClass: 'tag-blue',
+    saves: '3 hrs → 20 min', valueEst: 600,
+    fields: [
+      { id: 'businessName', label: 'Business name',             type: 'text',   ph: 'e.g. Sunrise Dental Group PC' },
+      { id: 'entityType',   label: 'Entity type',              type: 'select', opts: ['S-Corp','C-Corp','LLC','Sole Proprietor','Partnership'] },
+      { id: 'industry',     label: 'Industry',                 type: 'text',   ph: 'e.g. Healthcare, retail, construction' },
+      { id: 'period',       label: 'Period',                   type: 'text',   ph: 'e.g. Q3 2025, October 2025' },
+      { id: 'glData',       label: 'GL data (paste CSV/list)', type: 'textarea', ph: 'Date | Vendor/Payee | Description | Amount | Current Category\n10/15 | Amazon | Office supplies | $342 | Uncategorized\n10/18 | Delta Airlines | NYC trip | $1,240 | Travel\n10/22 | Cash withdrawal | [no description] | $500 | Uncategorized\n10/30 | Apple.com | Software | $199 | Uncategorized' }
+    ],
+    prompt: f => `You are a CPA and forensic accounting specialist reviewing a GL export.
+
+BUSINESS: ${f.businessName || '[Business]'} | ${f.entityType || 'LLC'} | ${f.industry || '[Industry]'} | Period: ${f.period || '[Period]'}
+
+GL DATA:
+${f.glData || '[No GL data provided — paste transaction data above]'}
+
+Produce three clearly labeled outputs:
+
+**OUTPUT 1 — CATEGORIZATION REVIEW**
+For each miscategorized or uncategorized transaction:
+| Transaction | Vendor | Amount | Suggested Account | Confidence | Reasoning |
+Confidence: High / Medium / Low
+
+**OUTPUT 2 — RED FLAGS & ANOMALIES**
+Flag any transactions that are:
+□ Likely personal expenses charged to business
+□ Duplicate entries
+□ Round-number transactions (may be estimates rather than actuals)
+□ Unusually large vs. typical business expenses
+□ Section 162 "ordinary and necessary" question marks
+□ Missing supporting documentation
+
+For each red flag: transaction details + specific concern + recommended follow-up question for client (professional, non-accusatory tone).
+
+**OUTPUT 3 — CLIENT QUESTIONS LIST**
+5–8 specific follow-up questions about flagged items. Frame as information-gathering, not an audit interrogation. Ready to send in a client email.`
+  },
+  {
+    id: 'tax-research', num: '06', title: 'Tax Research Agent', tag: 'Research', tagClass: 'tag-amber',
+    saves: '3 hrs → 30 min', valueEst: 900,
+    fields: [
+      { id: 'question',   label: 'Tax research question',  type: 'textarea', ph: 'e.g. Can my S-Corp client deduct home office costs if the corporation reimburses under an accountable plan? Or: What are the SECURE 2.0 changes affecting SEP-IRA contributions for a solo practitioner?' },
+      { id: 'entityType', label: 'Entity type',            type: 'select', opts: ['Individual','S-Corporation','C-Corporation','Partnership / LLC','Trust / Estate','Non-profit'] },
+      { id: 'state',      label: 'State',                  type: 'text',   ph: 'e.g. New York' },
+      { id: 'keyFacts',   label: 'Key facts',              type: 'textarea', ph: 'Specific circumstances, transactions, client goals, dollar amounts, or concerns that affect the analysis...' }
+    ],
+    prompt: f => `You are a senior tax attorney and CPA acting as a research partner.
+
+QUESTION: ${f.question || '[No question provided]'}
+ENTITY: ${f.entityType || 'Individual'} | STATE: ${f.state || '[State]'}
+KEY FACTS: ${f.keyFacts || 'None provided'}
+
+Produce a structured tax research memo:
+
+**ISSUE**
+One-sentence statement of the exact tax question.
+
+**SHORT ANSWER**
+Bottom line in 2–3 sentences. Lead with yes / no / it depends and the key condition.
+
+**LEGAL AUTHORITY**
+- Relevant IRC Section(s): cite and summarize the operative language
+- Treasury Regulations: cite and summarize applicable regs
+- IRS guidance (Rev. Procs, Rev. Rulings, PLRs, Notices): any relevant guidance
+- Key cases: case names, holdings, and applicability to these facts
+
+**ANALYSIS**
+Apply the law to these specific facts. Walk through each element of the applicable test. Flag where the facts are favorable and where they create risk or ambiguity.
+
+**PLANNING OPPORTUNITIES**
+If applicable: structuring, timing, or documentation steps that improve the outcome or reduce risk.
+
+**RISKS & LIMITATIONS**
+What could trigger IRS scrutiny? What facts are we missing that could change the analysis? Any recent developments to watch?
+
+**RECOMMENDED POSITION**
+What position to take, at what confidence level: Substantial authority / More likely than not / Reasonable basis / Frivolous.
+
+Note: Flag with [VERIFY] any items that may have changed since training cutoff or that require verification against current primary sources.`
+  },
+  {
+    id: 'depreciation', num: '07', title: 'Depreciation Schedule', tag: 'Assets', tagClass: 'tag-green',
+    saves: '2 hrs → 25 min', valueEst: 500,
+    fields: [
+      { id: 'clientName',     label: 'Client / Business name',               type: 'text',   ph: 'e.g. Blue Ridge Logistics Inc.' },
+      { id: 'entityType',     label: 'Entity type',                          type: 'select', opts: ['S-Corp','C-Corp','Partnership','Individual (Sch C)','Individual (Sch E)'] },
+      { id: 'taxableIncome',  label: 'Taxable income before depreciation ($)',type: 'text',   ph: 'e.g. 320,000' },
+      { id: 'state',          label: 'State',                                 type: 'text',   ph: 'e.g. Florida' },
+      { id: 'assetList',      label: 'Asset list (description | date | cost | use %)', type: 'textarea', ph: 'MacBook Pro laptop | 03/2025 | $2,800 | 100%\nCommercial delivery van | 06/2025 | $48,000 | 90%\nLeasehold improvements | 09/2025 | $85,000 | 100%\nManufacturing equipment | 01/2025 | $125,000 | 100%' },
+      { id: 'goals',          label: 'Depreciation goal',                     type: 'select', opts: ['Maximize current year deductions','Smooth deductions over time','Preserve for future high-income years','Balance with passive losses'] }
+    ],
+    prompt: f => `You are a CPA specializing in tax depreciation, cost segregation, and fixed asset management.
+
+CLIENT: ${f.clientName || '[Client]'} | ${f.entityType || 'S-Corp'} | State: ${f.state || '[State]'}
+Taxable income before depreciation: $${f.taxableIncome || '[Amount]'} | Goal: ${f.goals || 'Maximize deductions'}
+
+ASSET LIST:
+${f.assetList || '[No assets provided — paste asset list above]'}
+
+Produce:
+
+**1. ASSET CLASSIFICATION TABLE**
+| Asset | Date Placed | Cost | Business Use % | MACRS Class | Recovery Period | Method |
+
+**2. BONUS DEPRECIATION & SECTION 179 ANALYSIS**
+2025 bonus depreciation phase-down (40% for 2025). Which assets qualify for bonus? Which qualify for Section 179?
+Recommended elections given $${f.taxableIncome || '[income]'} income level and ${f.goals || 'stated goals'}.
+Show dollar impact of each election option.
+
+**3. FIRST-YEAR DEPRECIATION SCHEDULE**
+| Asset | Regular MACRS | Bonus Depreciation | Section 179 | Total Year 1 Deduction |
+Total first-year deduction with recommended elections.
+
+**4. MULTI-YEAR SCHEDULE**
+| Asset | Year 1 | Year 2 | Year 3 | Year 4 | Year 5 | Remaining |
+
+**5. COST SEGREGATION FLAG**
+For any real property over $500K: does a cost seg study make sense? Estimated reclassification potential and ROI on study cost.
+
+**6. PLANNING RECOMMENDATIONS**
+Specific advice given income level, entity type, goals, and asset mix.`
+  },
+  {
+    id: 'audit-summary', num: '08', title: 'Audit Workpaper Summary', tag: 'Audit', tagClass: 'tag-red',
+    saves: '2.5 hrs → 20 min', valueEst: 625,
+    fields: [
+      { id: 'clientName',   label: 'Client name',             type: 'text',   ph: 'e.g. Westside Community Hospital' },
+      { id: 'auditType',    label: 'Engagement type',         type: 'select', opts: ['Financial statement audit','Review engagement','Compilation','Agreed-upon procedures','Tax audit support','Internal audit'] },
+      { id: 'fiscalYear',   label: 'Fiscal year end',         type: 'text',   ph: 'e.g. December 31, 2024' },
+      { id: 'materiality',  label: 'Materiality threshold ($)',type: 'text',   ph: 'e.g. 75,000' },
+      { id: 'workpapers',   label: 'Workpaper notes / findings',type: 'textarea', ph: 'Paste audit workpaper notes, finding summaries, tick-mark descriptions, review notes, or auditor comments...' }
+    ],
+    prompt: f => `You are an audit manager preparing a workpaper review summary for partner sign-off.
+
+CLIENT: ${f.clientName || '[Client]'} | ${f.auditType || 'Financial statement audit'} | FYE: ${f.fiscalYear || '[Date]'} | Materiality: $${f.materiality || '[Amount]'}
+
+WORKPAPER CONTENT:
+${f.workpapers || '[No workpaper content provided — paste notes above]'}
+
+Produce:
+
+**1. EXECUTIVE SUMMARY** (for engagement partner)
+3–5 sentences: scope, overall conclusion, key themes, any significant issues or surprises.
+
+**2. KEY FINDINGS BY AUDIT AREA**
+Organize by area (Revenue, AR, Inventory, AP, Payroll, Fixed Assets, Equity, etc.)
+For each: Procedures performed → Findings → Conclusion → Any exceptions noted
+
+**3. OPEN ITEMS & UNRESOLVED QUESTIONS**
+Bulleted list of everything still needing: client response, third-party confirmation, team follow-up.
+Include: responsible party and target completion date for each.
+
+**4. RISK FLAGS**
+Rate each flag: Low / Medium / High
+□ Potential material misstatement
+□ Internal control weakness
+□ Going concern indicator
+□ Related party transaction requiring disclosure
+□ Prior year finding not resolved
+□ Accounting estimate with significant uncertainty
+
+**5. MANAGEMENT LETTER POINTS**
+2–4 recommendations from audit findings. Constructive, professional tone. Addresses root cause not just symptom.
+
+**6. ADJUSTING JOURNAL ENTRIES IDENTIFIED**
+If any: Account | Dr/Cr | Amount | Explanation`
+  },
+  {
+    id: 'payroll', num: '09', title: 'Payroll Compliance Check', tag: 'Payroll', tagClass: 'tag-green',
+    saves: '1.5 hrs → 15 min', valueEst: 375,
+    fields: [
+      { id: 'businessName', label: 'Business name',                  type: 'text',   ph: 'e.g. Northside Medical Group PC' },
+      { id: 'entityType',   label: 'Entity type',                   type: 'select', opts: ['S-Corp','C-Corp','Partnership','Sole Proprietor'] },
+      { id: 'states',       label: 'State(s) of operation',         type: 'text',   ph: 'e.g. NY, NJ, CT' },
+      { id: 'employees',    label: 'Employees (W-2 / 1099)',        type: 'text',   ph: 'e.g. 14 W-2 employees, 3 contractors' },
+      { id: 'payrollData',  label: 'Payroll summary data',          type: 'textarea', ph: 'Total gross wages: $\nFederal income tax withheld: $\nEmployee SS withheld: $\nEmployee Medicare withheld: $\nEmployer FICA match: $\nState income tax withheld: $\nSUTA paid: $\nOwner/officer W-2 wages: $\n1099 contractor payments YTD: $\nAny known issues or flags: ' }
+    ],
+    prompt: f => `You are a CPA and payroll compliance specialist.
+
+EMPLOYER: ${f.businessName || '[Business]'} | ${f.entityType || 'S-Corp'} | States: ${f.states || '[States]'} | Staff: ${f.employees || '[Count]'}
+
+PAYROLL DATA:
+${f.payrollData || '[No payroll data provided — paste data above]'}
+
+Check compliance across all areas and produce:
+
+**1. COMPLIANCE SCORECARD**
+| Area | Status | Notes |
+Status: ✅ Compliant | ⚠️ Review Needed | ❌ Non-Compliant
+Areas: 941 deposit timeliness | Employer FICA accuracy | Officer reasonable comp (S-Corp) | Worker classification | State withholding rates | Fringe benefit wage inclusion | Retirement plan limits | 1099 filing requirements
+
+**2. ISSUES FOUND**
+For each non-compliant or watch item:
+- Description of the issue
+- Regulatory citation (IRC section, Revenue Ruling, IRS publication)
+- Risk level: Low / Medium / High
+- Estimated penalty exposure if not corrected
+
+**3. CORRECTIVE ACTION PLAN**
+Specific steps to resolve each issue. Who does what. Deadlines.
+
+**4. PAYROLL FILING CALENDAR — NEXT 90 DAYS**
+All required federal and state payroll filings with due dates.
+Include: 941, FUTA, state income tax, SUTA, W-2 timing (if applicable).`
+  },
+  {
+    id: 'scope-writer', num: '10', title: 'Engagement Scope Writer', tag: 'Admin', tagClass: 'tag-blue',
+    saves: '1 hr → 10 min', valueEst: 300,
+    fields: [
+      { id: 'clientName',  label: 'Prospective client name',  type: 'text',     ph: 'e.g. Valley Oak Vineyards LLC' },
+      { id: 'services',    label: 'Services requested',       type: 'textarea', ph: 'Describe what they need: e.g. Annual 1065 partnership return, monthly bookkeeping (cash basis), QuickBooks cleanup for prior 2 years, quarterly estimated payment calculations, payroll compliance review...' },
+      { id: 'complexity',  label: 'Engagement complexity',    type: 'select',   opts: ['Simple — standard, clean books','Moderate — some complexity or catch-up','Complex — multi-state, M&A, special situations','Very complex — PE-backed, multiple entities, international'] },
+      { id: 'firmName',    label: 'Your firm name',           type: 'text',     ph: 'e.g. Meridian Tax Advisors LLP' },
+      { id: 'billing',     label: 'Billing model',            type: 'select',   opts: ['Fixed fee (annual)','Hourly ($250–$350/hr)','Monthly retainer + hourly overage','Value-based pricing'] }
+    ],
+    prompt: f => `You are a senior CPA drafting a professional engagement scope document.
+
+CLIENT: ${f.clientName || '[Client]'}
+SERVICES: ${f.services || '[Services]'}
+COMPLEXITY: ${f.complexity || 'Moderate'}
+FIRM: ${f.firmName || '[Firm]'} | BILLING: ${f.billing || 'Fixed fee'}
+
+Produce:
+
+**1. SCOPE OF WORK**
+Detailed description of exactly what IS included, organized by service type. Be specific — vague scope = scope creep = disputes. Then a clear list of what is NOT included.
+
+**2. FEE ESTIMATE**
+Recommended fee range with rationale for this complexity level. Break down by service line if multiple services. Note what would trigger additional fees (amended returns, audit support, extra entities, etc.).
+
+**3. TIMELINE & DELIVERABLES**
+Realistic timeline for each deliverable with client dependency notes (e.g., "dependent on client providing prior year returns by [date]").
+
+**4. CLIENT RESPONSIBILITIES**
+Specific checklist of what the client must provide, when, and in what format. Written so there's no ambiguity.
+
+**5. OUT-OF-SCOPE ITEMS**
+Explicit list of what this engagement does NOT cover. Sets expectations clearly to prevent future disputes.
+
+**6. KEY ENGAGEMENT TERMS**
+Payment schedule, additional work authorization process, file retention policy, termination clause, dispute resolution.`
+  },
+  {
+    id: 'cpe-tutor', num: '11', title: 'CPE Study Session', tag: 'Learning', tagClass: 'tag-amber',
+    saves: '2 hrs study → 45 min', valueEst: 0,
+    fields: [
+      { id: 'topic',   label: 'CPE topic or standard',   type: 'text',   ph: 'e.g. SECURE 2.0, ASC 842 Lease Accounting, Rev. Proc. 2024-34, Beneficial Ownership Reporting (BOI), Cryptocurrency taxation' },
+      { id: 'level',   label: 'Your knowledge level',    type: 'select', opts: ['Beginner — new to this topic','Intermediate — familiar with basics','Advanced — filling specific gaps'] },
+      { id: 'context', label: 'How will you apply this?',type: 'textarea', ph: 'e.g. 3 clients asking about new retirement plan rules for small businesses, need to advise on SECURE 2.0 changes before year-end planning meetings...' },
+      { id: 'time',    label: 'Study time available',    type: 'select', opts: ['30 minutes (quick overview)','1 hour (solid foundation)','2+ hours (deep dive + exam prep)'] }
+    ],
+    prompt: f => `You are a CPE instructor and tax expert creating a personalized study session.
+
+TOPIC: ${f.topic || '[Topic]'} | LEVEL: ${f.level || 'Intermediate'} | TIME: ${f.time || '1 hour'}
+CONTEXT: ${f.context || 'General practice application'}
+
+Create a structured, practical study session:
+
+**1. TOPIC OVERVIEW**
+Key concepts, why this matters now, effective date, which clients/entities are affected.
+
+**2. THE RULES — PLAIN ENGLISH FIRST**
+Core provisions explained clearly with real examples and actual dollar amounts. Lead with plain English, then add technical terms. Cover the most commonly tested and applied provisions.
+
+**3. PLANNING OPPORTUNITIES**
+What strategies does this create, change, or eliminate for clients?
+
+**4. COMMON MISTAKES TO AVOID**
+Top 3–5 errors practitioners make in this area. Be specific and practical.
+
+**5. CLIENT APPLICATION**
+How to explain this to clients in plain language. Which client types in your practice does this affect and how? Talking points for client meetings.
+
+**6. QUICK REFERENCE CHEAT SHEET**
+Key thresholds, dates, income limits, and action triggers in a scannable table format.
+
+**7. KNOWLEDGE CHECK**
+5 multiple-choice questions (similar to CPE exam format) with answers and explanations.
+
+Tailor depth and examples to ${f.level || 'intermediate'} level.`
+  },
+  {
+    id: 'client-faq', num: '12', title: 'Client FAQ Generator', tag: 'Marketing', tagClass: 'tag-amber',
+    saves: '1 hr → 10 min', valueEst: 250,
+    fields: [
+      { id: 'clientType',    label: 'Target client type',          type: 'select', opts: ['Small business owners','Real estate investors','Medical / dental professionals','High-net-worth individuals','Freelancers / 1099 contractors','Retirees / pre-retirees'] },
+      { id: 'topQuestions',  label: 'Top questions from this group',type: 'textarea', ph: '1. Should I be an S-Corp?\n2. What can I write off as a home office?\n3. How do quarterly estimated taxes work?\n4. What records do I need to keep?' },
+      { id: 'taxYear',       label: 'Tax year / season',           type: 'text',   ph: 'e.g. 2025, Q4 2025 planning season' },
+      { id: 'firmName',      label: 'Your firm name',              type: 'text',   ph: 'e.g. Harbor Financial Group CPA' },
+      { id: 'format',        label: 'Output format',               type: 'select', opts: ['Client newsletter insert','Website FAQ page content','LinkedIn post series (5 posts)','Email sequence (3 emails)','Client education handout'] }
+    ],
+    prompt: f => `You are a CPA and content strategist creating client education content.
+
+AUDIENCE: ${f.clientType || 'Small business owners'}
+TOP QUESTIONS: ${f.topQuestions || '[Questions not provided]'}
+TAX YEAR: ${f.taxYear || '2025'} | FIRM: ${f.firmName || '[Firm]'} | FORMAT: ${f.format || 'Newsletter insert'}
+
+Create professional, engaging client education content as a ${f.format || 'newsletter insert'}:
+
+For each question provided:
+- Plain English answer (no jargon, assume intelligent non-accountant reader)
+- Real example with specific numbers to illustrate
+- One action item the client can take today or before year-end
+- "Call your CPA if..." — specific trigger situations
+
+Also include:
+**3 Bonus Questions** this client type has but rarely asks (proactive advice they'll appreciate)
+
+**Myth vs. Reality** — 2–3 common misconceptions for ${f.clientType || 'this audience'} with corrections
+
+**Key Deadlines for ${f.taxYear || '2025'}** relevant to this audience — specific dates and actions
+
+Format for: ${f.format || 'newsletter insert'}
+Tone: Expert but approachable. Position ${f.firmName || 'your firm'} as the trusted advisor who proactively educates clients.`
+  }
+];
+
+// ═══════════════════════════════════════════════
+// APP INIT
+// ═══════════════════════════════════════════════
+function init() {
+  if (!state.apiKey) {
+    document.getElementById('apiGate').classList.remove('hidden');
+  } else {
+    showApp();
+  }
+}
+
+  state.apiKey = key;
+  LS.set('tf_apikey', key);
+  document.getElementById('apiGate').classList.add('hidden');
+  showApp();
+}
+
+function showApp() {
+  document.getElementById('appTopbar').style.display = 'flex';
+  document.getElementById('appShell').style.display = 'flex';
+  renderDashboard();
+  renderClientSelector();
+  updateBadges();
+}
+
+// ═══════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════
+function navigate(screen) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const s = document.getElementById('screen-' + screen);
+  if (s) s.classList.add('active');
+  const n = document.getElementById('nav-' + screen);
+  if (n) n.classList.add('active');
+  state.currentScreen = screen;
+
+  if (screen === 'dashboard') renderDashboard();
+  if (screen === 'clients') renderClients();
+  if (screen === 'history') renderHistory();
+  if (screen === 'settings') renderSettings();
+}
+
+// ═══════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════
+function renderDashboard() {
+  const outputs = state.outputs.length;
+  const hrs = Math.round(outputs * 2.3);
+  const val = outputs * 580;
+  const valStr = val >= 1000 ? '$' + Math.round(val / 1000) + 'K' : '$' + val;
+  document.getElementById('statOutputs').textContent = outputs;
+  document.getElementById('statHours').textContent = hrs;
+  document.getElementById('statValue').textContent = valStr;
+
+  const grid = document.getElementById('wfGrid');
+  grid.innerHTML = WORKFLOWS.map(w => `
+    <div class="wf-card" onclick="openWorkflow('${w.id}')">
+      <div class="wf-num">${w.num}</div>
+      <div class="wf-title">${w.title}</div>
+      <div class="wf-save">${w.saves}</div>
+      <span class="wf-tag ${w.tagClass}">${w.tag}</span>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════════
+// WORKFLOW RUNNER
+// ═══════════════════════════════════════════════
+function openWorkflow(id) {
+  const wf = WORKFLOWS.find(w => w.id === id);
+  if (!wf) return;
+  state.currentWF = wf;
+  state.currentFormData = {};
+
+  document.getElementById('wfRunTitle').textContent = wf.title;
+  const tagEl = document.getElementById('wfRunTag');
+  tagEl.textContent = wf.tag;
+  tagEl.className = `wf-tag ${wf.tagClass}`;
+
+  // Pre-fill from selected client
+  const client = state.clients.find(c => c.id === state.selectedClient);
+  if (client) {
+    state.currentFormData.clientName = client.name;
+    state.currentFormData.businessName = client.name;
+    state.currentFormData.ownerName = client.name;
+    state.currentFormData.entityType = client.entity || '';
+    state.currentFormData.state = client.state || '';
+    state.currentFormData.industry = client.industry || '';
+  }
+
+  // Render form
+  const form = document.getElementById('wfForm');
+  form.innerHTML = wf.fields.map(f => {
+    const val = state.currentFormData[f.id] || '';
+    if (f.type === 'select') {
+      const opts = f.opts.map(o => `<option value="${esc(o)}" ${val === o ? 'selected' : ''}>${esc(o)}</option>`).join('');
+      return `<div class="form-group">
+        <label class="form-label">${f.label}</label>
+        <select class="form-select" oninput="setFormField('${f.id}', this.value)">
+          <option value="">Select...</option>${opts}
+        </select>
+      </div>`;
+    } else if (f.type === 'textarea') {
+      return `<div class="form-group">
+        <label class="form-label">${f.label}</label>
+        <textarea class="form-textarea" placeholder="${esc(f.ph || '')}" oninput="setFormField('${f.id}', this.value)">${esc(val)}</textarea>
+      </div>`;
+    } else {
+      return `<div class="form-group">
+        <label class="form-label">${f.label}</label>
+        <input class="form-input" type="text" placeholder="${esc(f.ph || '')}" value="${esc(val)}" oninput="setFormField('${f.id}', this.value)" />
+      </div>`;
+    }
+  }).join('');
+
+  document.getElementById('outputArea').innerHTML = '';
+  document.getElementById('runBtn').disabled = false;
+  document.getElementById('runBtn').textContent = '⚡ Generate Output';
+
+  navigate('workflow');
+}
+
+function setFormField(id, val) {
+  if (!state.currentFormData) state.currentFormData = {};
+  state.currentFormData[id] = val;
+}
+
+async function runWorkflow() {
+  if (!state.currentWF) return;
+  if (!state.apiKey) { alert('Please add your Anthropic API key in Settings.'); return; }
+
+  const btn = document.getElementById('runBtn');
+  btn.disabled = true;
+  btn.textContent = 'Generating...';
+  btn.classList.add('loading');
+
+  const outputArea = document.getElementById('outputArea');
+  outputArea.innerHTML = `
+    <div class="output-card">
+      <div class="output-header">
+        <div class="output-title">AI Output — ${state.currentWF.title}</div>
+      </div>
+      <div class="loading-bar"><div class="loading-bar-inner"></div></div>
+      <div class="loading-dots">
+        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+      </div>
+      <div style="text-align:center;font-size:12px;color:#9ca3af;margin-top:-10px;padding-bottom:16px">
+        Claude is generating your ${state.currentWF.title.toLowerCase()}...
+      </div>
+    </div>`;
+
+  try {
+    const prompt = state.currentWF.prompt(state.currentFormData || {});
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': state.apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 2048,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `API error ${res.status} — check your API key in Settings`);
+    }
+
+    const data = await res.json();
+    const text = data.content?.[0]?.text || 'No output returned.';
+    const outputId = Date.now().toString();
+
+    outputArea.innerHTML = `
+      <div class="output-card">
+        <div class="output-header">
+          <div class="output-title">✅ ${state.currentWF.title}</div>
+          <div class="output-actions">
+            <button class="action-btn" onclick="copyOutput('${outputId}')">Copy</button>
+            <button class="action-btn" id="save-${outputId}" onclick="saveOutput('${outputId}')">Save to History</button>
+          </div>
+        </div>
+        <div class="output-body" id="body-${outputId}">${formatOutput(text)}</div>
+      </div>`;
+
+    // Store output temporarily
+    window._pendingOutput = { id: outputId, text, wf: state.currentWF, client: state.clients.find(c => c.id === state.selectedClient) };
+
+  } catch (err) {
+    outputArea.innerHTML = `
+      <div class="output-card" style="border-color:#fecaca">
+        <div class="output-body" style="background:#fef2f2;color:#dc2626">
+          <strong>Error:</strong> ${esc(err.message)}<br><br>
+          Common fixes:<br>
+          • Check your API key is correct (Settings → API Key)<br>
+          • Add billing credits at console.anthropic.com<br>
+          • Make sure the key starts with sk-ant-
+        </div>
+      </div>`;
+  }
+
+  btn.disabled = false;
+  btn.textContent = '⚡ Generate Output';
+  btn.classList.remove('loading');
+}
+
+function copyOutput(id) {
+  const body = document.getElementById('body-' + id);
+  if (body) {
+    navigator.clipboard.writeText(body.innerText).then(() => {
+      const btn = event.target;
+      btn.textContent = 'Copied ✓';
+      btn.classList.add('saved');
+      setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('saved'); }, 2000);
+    });
+  }
+}
+
+function saveOutput(id) {
+  const pending = window._pendingOutput;
+  if (!pending || pending.id !== id) return;
+  const client = pending.client;
+  const output = {
+    id: pending.id,
+    wfId: pending.wf.id,
+    wfTitle: pending.wf.title,
+    clientId: client?.id || null,
+    clientName: client?.name || null,
+    text: pending.text,
+    ts: Date.now()
+  };
+  state.outputs.unshift(output);
+  save();
+  updateBadges();
+  const btn = document.getElementById('save-' + id);
+  if (btn) { btn.textContent = 'Saved ✓'; btn.classList.add('saved'); btn.disabled = true; }
+}
+
+function formatOutput(text) {
+  return esc(text)
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n/g, '<br>');
+}
+
+// ═══════════════════════════════════════════════
+// CLIENTS
+// ═══════════════════════════════════════════════
+function renderClients() {
+  const container = document.getElementById('clientListContainer');
+  if (!state.clients.length) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">👥</div>
+        <div class="empty-title">No clients yet</div>
+        <div class="empty-sub">Add clients to pre-fill workflow forms automatically</div>
+        <button class="add-btn" onclick="openClientModal()">+ Add Your First Client</button>
+      </div>`;
+    return;
+  }
+  container.innerHTML = `<div class="client-list">
+    ${state.clients.map(c => `
+      <div class="client-card">
+        <div class="client-avatar">${ini(c.name)}</div>
+        <div>
+          <div class="client-name">${esc(c.name)}</div>
+          <div class="client-meta">${esc(c.entity || 'No entity')} · ${esc(c.state || 'No state')}${c.industry ? ' · ' + esc(c.industry) : ''}</div>
+        </div>
+        <div class="client-actions">
+          <button class="ghost-btn" onclick="editClient('${c.id}')">Edit</button>
+          <button class="ghost-btn danger" onclick="deleteClient('${c.id}')">Remove</button>
+        </div>
+      </div>`).join('')}
+  </div>`;
+}
+
+function openClientModal(clientId) {
+  state.editingClientId = clientId || null;
+  const modal = document.getElementById('clientModal');
+  const title = document.getElementById('clientModalTitle');
+  if (clientId) {
+    const c = state.clients.find(x => x.id === clientId);
+    if (c) {
+      title.textContent = 'Edit Client';
+      document.getElementById('cm-name').value = c.name || '';
+      document.getElementById('cm-entity').value = c.entity || '';
+      document.getElementById('cm-state').value = c.state || '';
+      document.getElementById('cm-industry').value = c.industry || '';
+      document.getElementById('cm-revenue').value = c.revenue || '';
+      document.getElementById('cm-notes').value = c.notes || '';
+    }
+  } else {
+    title.textContent = 'Add New Client';
+    ['cm-name','cm-state','cm-industry','cm-revenue','cm-notes'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('cm-entity').value = '';
+  }
+  modal.classList.remove('hidden');
+}
+
+function closeClientModal() {
+  document.getElementById('clientModal').classList.add('hidden');
+  state.editingClientId = null;
+}
+
+function editClient(id) { openClientModal(id); }
+
+function saveClient() {
+  const name = document.getElementById('cm-name').value.trim();
+  if (!name) { alert('Client name is required'); return; }
+  if (state.editingClientId) {
+    const c = state.clients.find(x => x.id === state.editingClientId);
+    if (c) {
+      c.name = name;
+      c.entity = document.getElementById('cm-entity').value;
+      c.state = document.getElementById('cm-state').value.trim();
+      c.industry = document.getElementById('cm-industry').value.trim();
+      c.revenue = document.getElementById('cm-revenue').value.trim();
+      c.notes = document.getElementById('cm-notes').value.trim();
+    }
+  } else {
+    state.clients.push({
+      id: Date.now().toString(),
+      name,
+      entity: document.getElementById('cm-entity').value,
+      state: document.getElementById('cm-state').value.trim(),
+      industry: document.getElementById('cm-industry').value.trim(),
+      revenue: document.getElementById('cm-revenue').value.trim(),
+      notes: document.getElementById('cm-notes').value.trim(),
+      created: Date.now()
+    });
+  }
+  save();
+  renderClientSelector();
+  updateBadges();
+  closeClientModal();
+  if (state.currentScreen === 'clients') renderClients();
+}
+
+function deleteClient(id) {
+  if (!confirm('Remove this client?')) return;
+  state.clients = state.clients.filter(c => c.id !== id);
+  if (state.selectedClient === id) { state.selectedClient = null; document.getElementById('clientSelector').value = ''; }
+  save();
+  renderClientSelector();
+  updateBadges();
+  renderClients();
+}
+
+function renderClientSelector() {
+  const sel = document.getElementById('clientSelector');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">— Select Client —</option>' +
+    state.clients.map(c => `<option value="${c.id}" ${c.id === cur ? 'selected' : ''}>${esc(c.name)}</option>`).join('');
+}
+
+function selectClient(id) {
+  state.selectedClient = id || null;
+}
+
+// ═══════════════════════════════════════════════
+// HISTORY
+// ═══════════════════════════════════════════════
+function renderHistory() {
+  const container = document.getElementById('historyContainer');
+  if (!state.outputs.length) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <div class="empty-title">No outputs yet</div>
+        <div class="empty-sub">Run a workflow and save the output to see it here</div>
+      </div>`;
+    return;
+  }
+  container.innerHTML = `<div class="history-list">
+    ${state.outputs.slice(0, 30).map(o => `
+      <div class="history-card" onclick="viewOutput('${o.id}')">
+        <div class="history-header">
+          <div class="history-wf">${esc(o.wfTitle)}</div>
+          <div class="history-date">${ago(o.ts)}</div>
+        </div>
+        ${o.clientName ? `<div class="history-client">👤 ${esc(o.clientName)}</div>` : ''}
+        <div class="history-preview">${esc(o.text.slice(0, 180))}...</div>
+      </div>`).join('')}
+  </div>`;
+}
+
+function viewOutput(id) {
+  const o = state.outputs.find(x => x.id === id);
+  if (!o) return;
+  state.viewingOutputId = id;
+  document.getElementById('detailTitle').textContent = o.wfTitle;
+  document.getElementById('detailMeta').textContent =
+    (o.clientName ? `Client: ${o.clientName} · ` : '') + new Date(o.ts).toLocaleString();
+  document.getElementById('detailBody').innerHTML = formatOutput(o.text);
+  navigate('detail');
+}
+
+function copyDetail() {
+  const body = document.getElementById('detailBody');
+  if (body) {
+    navigator.clipboard.writeText(body.innerText).then(() => {
+      const btn = event.target;
+      btn.textContent = 'Copied ✓';
+      btn.classList.add('saved');
+      setTimeout(() => { btn.textContent = 'Copy Output'; btn.classList.remove('saved'); }, 2000);
+    });
+  }
+}
+
+// ═══════════════════════════════════════════════
+// SETTINGS
+// ═══════════════════════════════════════════════
+function renderSettings() {
+  const keyInput = document.getElementById('settingsKeyInput');
+  keyInput.value = state.apiKey ? state.apiKey.slice(0, 20) + '...' : '';
+  const status = document.getElementById('keyStatus');
+  if (state.apiKey) {
+    status.className = 'key-status ok';
+    status.textContent = '✅ API key is set and active';
+  } else {
+    status.className = 'key-status missing';
+    status.textContent = '⚠️ No API key set — add one below to use the app';
+  }
+  document.getElementById('usageStats').innerHTML = `
+    Total outputs generated: <strong>${state.outputs.length}</strong><br>
+    Clients in system: <strong>${state.clients.length}</strong><br>
+    Estimated hours saved: <strong>${Math.round(state.outputs.length * 2.3)} hrs</strong><br>
+    Estimated billable value recovered: <strong>$${(state.outputs.length * 580).toLocaleString()}</strong>
+  `;
+}
+
+function updateApiKey() {
+  const input = document.getElementById('settingsKeyInput');
+  const key = input.value.trim();
+  if (key.includes('...')) { alert('Please enter the full API key, not the masked version'); return; }
+  if (!key.startsWith('sk-ant-')) { alert('Please enter a valid Anthropic API key (starts with sk-ant-)'); return; }
+  state.apiKey = key;
+  LS.set('tf_apikey', key);
+  renderSettings();
+  alert('API key saved successfully ✅');
+}
+
+function clearAllData() {
+  if (!confirm('This will delete ALL clients, output history, and settings. Are you sure?')) return;
+  if (!confirm('Last chance — this cannot be undone. Continue?')) return;
+  LS.del('tf_clients'); LS.del('tf_outputs'); LS.del('tf_apikey');
+  state = { apiKey: '', clients: [], outputs: [], selectedClient: null, currentWF: null, currentScreen: 'dashboard', editingClientId: null };
+  document.getElementById('appTopbar').style.display = 'none';
+  document.getElementById('appShell').style.display = 'none';
+  document.getElementById('apiGate').classList.remove('hidden');
+}
+
+// ═══════════════════════════════════════════════
+// UTILITIES
+// ═══════════════════════════════════════════════
+function updateBadges() {
+  document.getElementById('clientBadge').textContent = state.clients.length;
+  document.getElementById('historyBadge').textContent = state.outputs.length;
+}
+
+function ini(name) {
+  return (name || '?').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+}
+
+function ago(ts) {
+  const d = Date.now() - ts;
+  if (d < 3600000) return Math.round(d / 60000) + 'm ago';
+  if (d < 86400000) return Math.round(d / 3600000) + 'h ago';
+  if (d < 604800000) return Math.round(d / 86400000) + 'd ago';
+  return new Date(ts).toLocaleDateString();
+}
+
+function esc(s) {
+  return String(s || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// Enter key on API gate
+document.getElementById('gateKeyInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') saveApiKey();
+});
+
+// ═══════════════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════════════
+init();
+
+// Mobile bottom nav
+function bnNav(screen) {
+  // Update bottom nav active state
+  document.querySelectorAll('.bn-item').forEach(b => b.classList.remove('active'));
+  const activeBtn = document.getElementById('bn-' + screen);
+  if (activeBtn) activeBtn.classList.add('active');
+  // Use the existing navigate function
+  navigate(screen);
+}
+// Sync bottom nav when sidebar nav is used
+const _origNavigate = navigate;
+// Patch navigate to also update bottom nav
+function navigate(screen) {
+  _origNavigate(screen);
+  document.querySelectorAll('.bn-item').forEach(b => b.classList.remove('active'));
+  const btn = document.getElementById('bn-' + screen);
+  if (btn) btn.classList.add('active');
+  // For workflow/detail screens, keep dashboard/history highlighted
+  if (screen === 'workflow') {
+    const db = document.getElementById('bn-dashboard');
+    if (db) db.classList.add('active');
+  }
+  if (screen === 'detail') {
+    const hb = document.getElementById('bn-history');
+    if (hb) hb.classList.add('active');
+  }
+}
+
+</script>
+
+<!-- Mobile Bottom Nav -->
+<div class="bottom-nav" id="bottomNav">
+  <div class="bottom-nav-inner">
+    <button class="bn-item active" id="bn-dashboard" onclick="bnNav('dashboard')">
+      <span class="bn-icon">⚡</span>
+      <span class="bn-label">Workflows</span>
+    </button>
+    <button class="bn-item" id="bn-clients" onclick="bnNav('clients')">
+      <span class="bn-icon">👥</span>
+      <span class="bn-label">Clients</span>
+    </button>
+    <button class="bn-item" id="bn-history" onclick="bnNav('history')">
+      <span class="bn-icon">📋</span>
+      <span class="bn-label">History</span>
+    </button>
+    <button class="bn-item" id="bn-settings" onclick="bnNav('settings')">
+      <span class="bn-icon">⚙️</span>
+      <span class="bn-label">Settings</span>
+    </button>
+  </div>
+</div>
+
+</body>
+</html>
