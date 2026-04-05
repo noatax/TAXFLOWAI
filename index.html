@@ -681,8 +681,8 @@
 // ═══════════════════════════════════════════════════════
 // CONFIGURATION — fill in before sharing with your team
 // ═══════════════════════════════════════════════════════
-const APP_PASSWORD = 'taxflowai2025';   // e.g. 'taxflow2025'
-const APP_API_KEY  = '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';   // your sk-ant-... key
+const APP_PASSWORD = 'taxflowai2025';
+const APP_API_KEY  = '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';
 
 function saveApiKey() {
   const input = document.getElementById('gateKeyInput').value.trim();
@@ -1248,6 +1248,7 @@ function navigate(screen) {
   const n = document.getElementById('nav-' + screen);
   if (n) n.classList.add('active');
   state.currentScreen = screen;
+  syncBottomNav(screen);
 
   if (screen === 'dashboard') renderDashboard();
   if (screen === 'clients') renderClients();
@@ -1708,30 +1709,16 @@ init();
 
 // Mobile bottom nav
 function bnNav(screen) {
-  // Update bottom nav active state
-  document.querySelectorAll('.bn-item').forEach(b => b.classList.remove('active'));
-  const activeBtn = document.getElementById('bn-' + screen);
-  if (activeBtn) activeBtn.classList.add('active');
-  // Use the existing navigate function
   navigate(screen);
+  syncBottomNav(screen);
 }
-// Sync bottom nav when sidebar nav is used
-const _origNavigate = navigate;
-// Patch navigate to also update bottom nav
-function navigate(screen) {
-  _origNavigate(screen);
+function syncBottomNav(screen) {
   document.querySelectorAll('.bn-item').forEach(b => b.classList.remove('active'));
-  const btn = document.getElementById('bn-' + screen);
+  var target = screen;
+  if (screen === 'workflow') target = 'dashboard';
+  if (screen === 'detail') target = 'history';
+  var btn = document.getElementById('bn-' + target);
   if (btn) btn.classList.add('active');
-  // For workflow/detail screens, keep dashboard/history highlighted
-  if (screen === 'workflow') {
-    const db = document.getElementById('bn-dashboard');
-    if (db) db.classList.add('active');
-  }
-  if (screen === 'detail') {
-    const hb = document.getElementById('bn-history');
-    if (hb) hb.classList.add('active');
-  }
 }
 
 </script>
